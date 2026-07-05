@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Package, Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 
 interface RegisterProps {
-  onRegister: (name: string, email: string, password: string, role: 'admin' | 'user') => Promise<{ success: boolean; message: string }>;
+  onRegister: (name: string, email: string, password: string, role?: string) => Promise<{ success: boolean; message: string }>;
 }
 
 export default function Register({ onRegister }: RegisterProps) {
@@ -13,7 +13,6 @@ export default function Register({ onRegister }: RegisterProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isAdmin, setIsAdmin] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,24 +22,26 @@ export default function Register({ onRegister }: RegisterProps) {
     setError('');
 
     if (password !== confirmPassword) {
-      setError('As senhas não coincidem.');
+      setError('As senhas não coincidem');
       return;
     }
+
     if (password.length < 6) {
-      setError('A senha deve ter pelo menos 6 caracteres.');
+      setError('A senha deve ter no mínimo 6 caracteres');
       return;
     }
 
     setIsSubmitting(true);
+
     try {
-      const result = await onRegister(name, email, password, isAdmin ? 'admin' : 'user');
+      const result = await onRegister(name, email, password, 'user');
       if (result.success) {
         navigate('/');
       } else {
         setError(result.message);
       }
     } catch (err) {
-      setError('Erro ao fazer cadastro. Tente novamente.');
+      setError('Erro ao cadastrar. Tente novamente.');
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -65,8 +66,8 @@ export default function Register({ onRegister }: RegisterProps) {
             >
               <Package className="w-8 h-8 text-white" />
             </motion.div>
-            <h1 className="text-2xl font-bold text-slate-800">Criar conta</h1>
-            <p className="text-slate-500 mt-1 text-sm">Cadastre-se para começar a gerenciar distribuidoras</p>
+            <h1 className="text-2xl font-bold text-slate-800">Criar Conta</h1>
+            <p className="text-slate-500 mt-1 text-sm">Cadastre-se para começar</p>
           </div>
 
           <form onSubmit={handleSubmit} className="px-8 pb-8 space-y-5">
@@ -81,17 +82,15 @@ export default function Register({ onRegister }: RegisterProps) {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Nome completo</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Nome</label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="text"
-                  name="name"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  autoComplete="name"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="Seu nome"
                 />
               </div>
@@ -103,12 +102,11 @@ export default function Register({ onRegister }: RegisterProps) {
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="email"
-                  name="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   autoComplete="email"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="seu@email.com"
                 />
               </div>
@@ -120,13 +118,12 @@ export default function Register({ onRegister }: RegisterProps) {
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  name="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   autoComplete="new-password"
-                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                  placeholder="Mínimo 6 caracteres"
+                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  placeholder="Sua senha"
                 />
                 <button
                   type="button"
@@ -136,52 +133,22 @@ export default function Register({ onRegister }: RegisterProps) {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              {password.length > 0 && (
-                <div className="mt-2 flex gap-1">
-                  {[...Array(3)].map((_, i) => (
-                    <div
-                      key={i}
-                      className={`h-1.5 w-full rounded-full transition-colors ${
-                        password.length < 6
-                          ? i === 0 ? 'bg-red-500' : 'bg-slate-200'
-                          : password.length < 8
-                          ? i < 2 ? 'bg-amber-500' : 'bg-slate-200'
-                          : 'bg-emerald-500'
-                      }`}
-                    />
-                  ))}
-                </div>
-              )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Confirmar senha</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Confirmar Senha</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  name="confirmPassword"
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   autoComplete="new-password"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                  placeholder="Repita a senha"
+                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  placeholder="Confirme sua senha"
                 />
               </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="isAdmin"
-                checked={isAdmin}
-                onChange={(e) => setIsAdmin(e.target.checked)}
-                className="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500"
-              />
-              <label htmlFor="isAdmin" className="text-sm text-slate-700 font-medium">
-                Cadastrar como Administrador
-              </label>
             </div>
 
             <button

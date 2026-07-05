@@ -55,7 +55,7 @@ export default function Layout({ user, onLogout }: LayoutProps) {
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-lg">
                 <User className="w-4 h-4 text-slate-500" />
-                <span className="text-sm text-slate-700 font-medium hidden sm:inline">{user?.name}</span>
+                <span className="text-sm text-slate-700 font-medium hidden sm:inline">{user?.name || 'Usuário'}</span>
               </div>
               <button
                 onClick={handleLogout}
