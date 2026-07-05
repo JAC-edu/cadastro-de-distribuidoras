@@ -11,8 +11,20 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 
 export default function App() {
-  const { currentUser, login, register, logout } = useAuth();
+  const { currentUser, isLoading, login, register, logout } = useAuth();
   const { distributors, add } = useDistributors();
+
+  // Mostrar tela de carregamento enquanto valida sessão
+  if (isLoading && !currentUser) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return currentUser ? children : <Navigate to="/login" />;
