@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Package, Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 
 interface RegisterProps {
-  onRegister: (name: string, email: string, password: string, role: 'admin' | 'user') => { success: boolean; message: string };
+  onRegister: (name: string, email: string, password: string, role: 'admin' | 'user') => Promise<{ success: boolean; message: string }>;
 }
 
 export default function Register({ onRegister }: RegisterProps) {
@@ -18,7 +18,7 @@ export default function Register({ onRegister }: RegisterProps) {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -32,15 +32,19 @@ export default function Register({ onRegister }: RegisterProps) {
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      const result = onRegister(name, email, password, isAdmin ? 'admin' : 'user');
+    try {
+      const result = await onRegister(name, email, password, isAdmin ? 'admin' : 'user');
       if (result.success) {
         navigate('/');
       } else {
         setError(result.message);
       }
+    } catch (err) {
+      setError('Erro ao fazer cadastro. Tente novamente.');
+      console.error(err);
+    } finally {
       setIsSubmitting(false);
-    }, 400);
+    }
   };
 
   return (
@@ -87,7 +91,7 @@ export default function Register({ onRegister }: RegisterProps) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   autoComplete="name"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
                   placeholder="Seu nome"
                 />
               </div>
@@ -104,7 +108,7 @@ export default function Register({ onRegister }: RegisterProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   autoComplete="email"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
                   placeholder="seu@email.com"
                 />
               </div>
@@ -121,7 +125,7 @@ export default function Register({ onRegister }: RegisterProps) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   autoComplete="new-password"
-                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
                   placeholder="Mínimo 6 caracteres"
                 />
                 <button
@@ -161,7 +165,7 @@ export default function Register({ onRegister }: RegisterProps) {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   autoComplete="new-password"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
                   placeholder="Repita a senha"
                 />
               </div>
