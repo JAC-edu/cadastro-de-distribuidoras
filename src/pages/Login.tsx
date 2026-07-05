@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Package, Eye, EyeOff, Mail, Lock } from 'lucide-react';
 
 interface LoginProps {
-  onLogin: (email: string, password: string) => { success: boolean; message: string };
+  onLogin: (email: string, password: string) => Promise<{ success: boolean; message: string }>;
 }
 
 export default function Login({ onLogin }: LoginProps) {
@@ -15,20 +15,24 @@ export default function Login({ onLogin }: LoginProps) {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      const result = onLogin(email, password);
+    try {
+      const result = await onLogin(email, password);
       if (result.success) {
         navigate('/');
       } else {
         setError(result.message);
       }
+    } catch (err) {
+      setError('Erro ao fazer login. Tente novamente.');
+      console.error(err);
+    } finally {
       setIsSubmitting(false);
-    }, 400);
+    }
   };
 
   return (
